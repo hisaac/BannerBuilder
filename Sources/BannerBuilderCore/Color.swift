@@ -20,6 +20,23 @@ enum Color {
 
 extension Color {
 
+	init(rawValue: String) {
+		switch rawValue {
+		case "red": self = .red
+		case "orange": self = .orange
+		case "yellow": self = .yellow
+		case "green": self = .green
+		case "teal",
+			 "tealBlue": self = .tealBlue
+		case "blue": self = .blue
+		case "purple": self = .purple
+		case "pink": self = .pink
+		case "black": self = .black
+		case "white": self = .white
+		default: self = .red
+		}
+	}
+
 	var rgbString: String {
 		switch self {
 		case .red:      return "255,59,48"
