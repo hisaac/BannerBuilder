@@ -14,27 +14,18 @@ public final class BannerBuilder {
 
 	public func run() throws {
 		let command = MagickCommand(
-			bannerText: "DEV",
-			inputPath: "/Users/hisaac/code/mine/BannerBuilder/input/app-icon-1024@1x.png",
-			outputPath: "/Users/hisaac/code/mine/BannerBuilder/%[filename:input]-dev.png"
+			bannerText: "BETA",
+			inputPath: "/Users/hisaac/code/mine/BannerBuilder/Assets/app-icon/",
+			outputPath: "/Users/hisaac/code/mine/BannerBuilder/Assets/output/",
+			rotated: true,
+			bannerColor: .orange
 		)
 
 		do {
-			let output = try shellOut(to: command.string)
-			print(output)
+			try command.convertImages()
 		} catch {
-			let error = error as! ShellOutError
-			print(error.message) // STDERR
-			print(error.output)  // STDOUT
+			print(error.localizedDescription)
 		}
-	}
-
-}
-
-public extension BannerBuilder {
-
-	enum Error: Swift.Error {
-		case failedToCreateFile
 	}
 
 }
