@@ -3,35 +3,83 @@
 import Files
 import Foundation
 import ShellOut
+import Utility
 
 public final class BannerBuilder {
 
 	private let arguments: [String]
+	private let parser: ArgumentParser
 
 	public init(arguments: [String] = CommandLine.arguments) {
 		self.arguments = arguments
+
+		parser = ArgumentParser(
+			commandName: "bannerbuilder",
+			usage: "--input \"path/to/input\" --output \"path/to/output\" --bannerText \"DEV\" --bannerColor \"red\"",
+			overview: "BannerBuilder will automatically add a banner to your App's icon"
+		)
 	}
 
 	public func run() throws {
 
-		let options = parseArguments()
+		var result: ArgumentParser.Result
 
-		guard let bannerText = options.bannerText?.value else { throw Error.missingBannerText }
-		guard let bannerColor = options.bannerColor?.value else { throw Error.missingBannerColor }
-		guard let inputPath = options.inputPath?.value else { throw Error.missingInputPath }
-		guard let outputPath = options.outputPath?.value else { throw Error.missingOutputPath }
+		let input = parser.add(
+			option: "--input",
+			shortName: "-i",
+			kind: String.self,
+			usage: "The file path containing the images you would like to add a banner to",
+			completion: .filename
+		)
 
-		let command = MagickCommand(
-			bannerText: bannerText,
-			inputPath: inputPath,
-			outputPath: outputPath,
-			rotated: true,
-			textColor: .white,
-			bannerColor: Color(rawValue: bannerColor)
+		let output = parser.add(
+			option: "--output",
+			shortName: "-o",
+			kind: String.self,
+			usage: "The file path to where you'd like the newly created images to end up",
+			completion: .filename
+		)
+
+		let bannerTextValue = parser.add(
+			option: "--bannerText",
+			shortName: "-t",
+			kind: String.self,
+			usage: "The text you'd like to have displayed on the banner (Note: Currently only 3 or 4 character strings are supported)",
+			completion: .none
+		)
+
+		let allColors: [(value: String, description: String)] = Color.allCases.map {
+			return (value: $0.rgbString, description: $0.rawValue)
+		}
+
+		let bannerColorValue = parser.add(
+			option: "--bannerColor",
+			shortName: "-c",
+			kind: String.self,
+			usage: "The color of the banner. Can provide a color defined in the HIG, or RGB values in rrr,ggg,bbb format (e.g. 255,23,87)",
+			completion: .values(allColors)
 		)
 
 		do {
+			let args = Array(arguments.dropFirst())
+			result = try parser.parse(args)
+
+			guard let bannerText = result.get(bannerTextValue) else { throw Error.missingBannerText }
+			guard let bannerColor = result.get(bannerColorValue) else { throw Error.missingBannerColor }
+			guard let inputPath = result.get(input) else { throw Error.missingInputPath }
+			guard let outputPath = result.get(output) else { throw Error.missingOutputPath }
+
+			let command = MagickCommand(
+				bannerText: bannerText,
+				inputPath: inputPath,
+				outputPath: outputPath,
+				rotated: true,
+				textColor: .white,
+				bannerColor: Color(rawValue: bannerColor)
+			)
+
 			try command.convertImages()
+
 		} catch {
 			print(error.localizedDescription)
 		}
@@ -52,31 +100,6 @@ public final class BannerBuilder {
 		)
 	}
 
-	func parseArguments() -> ArgumentValues {
-		var argumentValues = ArgumentValues()
-
-		for (index, argument) in arguments.enumerated() {
-			if argument == "-t" {
-				argumentValues.bannerText = .bannerText(arguments[index + 1])
-			} else if argument == "-i" {
-				argumentValues.inputPath = .input(arguments[index + 1])
-			} else if argument == "-o" {
-				argumentValues.outputPath = .output(arguments[index + 1])
-			} else if argument == "-c" {
-				argumentValues.bannerColor = .bannerColor(arguments[index + 1])
-			}
-		}
-
-		return argumentValues
-	}
-
-}
-
-struct ArgumentValues {
-	var bannerText: Option?
-	var bannerColor: Option?
-	var inputPath: Option?
-	var outputPath: Option?
 }
 
 public extension BannerBuilder {

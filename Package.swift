@@ -6,6 +6,7 @@ import PackageDescription
 let package = Package(
 	name: "BannerBuilder",
 	dependencies: [
+		.package(url: "https://github.com/apple/swift-package-manager.git", from: "0.3.0"),
 		.package(url: "https://github.com/JohnSundell/Files", from: "2.0.0"),
 		.package(url: "https://github.com/JohnSundell/ShellOut", from: "2.0.0")
 	],
@@ -16,7 +17,7 @@ let package = Package(
 		),
 		.target(
 			name: "BannerBuilderCore",
-			dependencies: ["Files", "ShellOut"]
+			dependencies: ["Files", "ShellOut", "Utility"]
 		),
 		.testTarget(
 			name: "BannerBuilderTests",

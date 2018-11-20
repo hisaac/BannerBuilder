@@ -18,6 +18,15 @@
           "revision": "f1c253a34a40df4bfd268b09fdb101b059f6d52d",
           "version": "2.1.0"
         }
+      },
+      {
+        "package": "SwiftPM",
+        "repositoryURL": "https://github.com/apple/swift-package-manager.git",
+        "state": {
+          "branch": null,
+          "revision": "235aacc514cb81a6881364b0fedcb3dd083228f3",
+          "version": "0.3.0"
+        }
       }
     ]
   },
