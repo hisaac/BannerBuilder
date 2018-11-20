@@ -13,7 +13,7 @@ public final class BannerBuilder {
 
 		parser = ArgumentParser(
 			commandName: "bannerbuilder",
-			usage: "--input \"path/to/input\" --output \"path/to/output\" --bannerText \"DEV\" --bannerColor \"red\"",
+			usage: "--input path/to/input --output path/to/output --bannerText DEV --bannerColor red",
 			overview: "BannerBuilder will automatically add a banner to your App's icon"
 		)
 	}
