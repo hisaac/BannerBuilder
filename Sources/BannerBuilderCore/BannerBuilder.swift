@@ -81,7 +81,7 @@ public final class BannerBuilder {
 				bannerColor: Color(rawValue: bannerColor)
 			)
 
-			try command.convertImages()
+			command.convertImages()
 
 		} catch let error as ArgumentParserError {
 			print(error.description)

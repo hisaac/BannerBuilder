@@ -64,22 +64,12 @@ struct MagickCommand {
 
 extension MagickCommand {
 
-	func convertImages() throws {
+	func convertImages() {
 		for image in inputImages {
-
-			let commandString = buildMagickCommand(for: image)
-
-			#warning("Figure out how to launch these processes")
-
-			do {
-				let process = Process(arguments: ["-c", buildMagickCommand(for: image)])
-				try process.launch()
-				let result = try process.waitUntilExit()
-				let output = try result.utf8Output()
-				print(output)
-			} catch {
-				print(error.localizedDescription)
-			}
+			let task = Process()
+			task.launchPath = "/bin/bash"
+			task.arguments = ["-c", buildMagickCommand(for: image)]
+			task.launch()
 		}
 	}
 
@@ -97,7 +87,7 @@ extension MagickCommand {
 				-gravity \(gravity) \
 				-pointsize "%[fx:h/5]" \
 				-draw "rotate 45 font AndaleMono text %[fx:h/4],%[fx:h/\(horizontalPosition)] '\(bannerText)'" \
-				\(outputPath.asString)%[filename:input].png
+				\(outputPath.asString)/%[filename:input].png
 				"""
 
 		} else {
