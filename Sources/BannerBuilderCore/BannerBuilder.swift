@@ -1,8 +1,6 @@
 // Created by Isaac Halvorson on 11/14/18
 
-import Files
-import Foundation
-import ShellOut
+import Basic
 import Utility
 
 public final class BannerBuilder {
@@ -22,12 +20,10 @@ public final class BannerBuilder {
 
 	public func run() throws {
 
-		var result: ArgumentParser.Result
-
 		let input = parser.add(
 			option: "--input",
 			shortName: "-i",
-			kind: String.self,
+			kind: PathArgument.self,
 			usage: "The file path containing the images you would like to add a banner to",
 			completion: .filename
 		)
@@ -35,7 +31,7 @@ public final class BannerBuilder {
 		let output = parser.add(
 			option: "--output",
 			shortName: "-o",
-			kind: String.self,
+			kind: PathArgument.self,
 			usage: "The file path to where you'd like the newly created images to end up",
 			completion: .filename
 		)
@@ -61,8 +57,15 @@ public final class BannerBuilder {
 		)
 
 		do {
+			// The first argument is the path to the BannerBuilder executable, so we ignore that here
 			let args = Array(arguments.dropFirst())
-			result = try parser.parse(args)
+			let result = try parser.parse(args)
+
+			// Print the usage description if the user didn't provide any arguments
+			guard args.count > 0 else {
+				parser.printUsage(on: stdoutStream)
+				return
+			}
 
 			guard let bannerText = result.get(bannerTextValue) else { throw Error.missingBannerText }
 			guard let bannerColor = result.get(bannerColorValue) else { throw Error.missingBannerColor }
@@ -71,8 +74,8 @@ public final class BannerBuilder {
 
 			let command = MagickCommand(
 				bannerText: bannerText,
-				inputPath: inputPath,
-				outputPath: outputPath,
+				inputPath: inputPath.path,
+				outputPath: outputPath.path,
 				rotated: true,
 				textColor: .white,
 				bannerColor: Color(rawValue: bannerColor)
@@ -80,24 +83,11 @@ public final class BannerBuilder {
 
 			try command.convertImages()
 
+		} catch let error as ArgumentParserError {
+			print(error.description)
 		} catch {
 			print(error.localizedDescription)
 		}
-	}
-
-	func printUsage() {
-		let executableName = (arguments[0] as NSString).lastPathComponent
-
-		print("""
-			usage:
-			\(executableName) -a string1 string2
-			or
-			\(executableName) -p string
-			or
-			\(executableName) -h to show usage information
-			Type \(executableName) without an option to enter interactive mode.
-			"""
-		)
 	}
 
 }
@@ -108,23 +98,5 @@ public extension BannerBuilder {
 		case missingBannerColor
 		case missingInputPath
 		case missingOutputPath
-	}
-}
-
-enum Option {
-	case input(_ value: String)
-	case output(_ value: String)
-	case bannerText(_ value: String)
-	case bannerColor(_ value: String)
-	case unknown
-
-	var value: String? {
-		switch self {
-		case let .input(value): return value
-		case let .output(value): return value
-		case let .bannerText(value): return value
-		case let .bannerColor(value): return value
-		default: return nil
-		}
 	}
 }
