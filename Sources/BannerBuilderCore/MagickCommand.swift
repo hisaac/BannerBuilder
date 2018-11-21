@@ -70,6 +70,7 @@ extension MagickCommand {
 			task.launchPath = "/bin/bash"
 			task.arguments = ["-c", buildMagickCommand(for: image)]
 			task.launch()
+			task.waitUntilExit()
 		}
 	}
 

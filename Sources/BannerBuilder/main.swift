@@ -5,5 +5,5 @@ import BannerBuilderCore
 do {
 	try BannerBuilder().run()
 } catch {
-	print("Whoops! An error occurred: \(error)")
+	print("Whoops! BannerBuilder encountered an error: \(error)")
 }
