@@ -1,5 +1,6 @@
 // Created by Isaac Halvorson on 11/14/18
 
+import Foundation
 import Basic
 import Utility
 
@@ -18,7 +19,38 @@ public final class BannerBuilder {
 		)
 	}
 
+	private func isImageMagickInstalled() -> Bool {
+		let task = Process()
+		task.launchPath = "/bin/bash"
+		task.arguments = ["-c", "which magick"]
+
+		let outPipe = Pipe()
+		task.standardOutput = outPipe
+		let errorPipe = Pipe()
+		task.standardError = errorPipe
+
+		task.launch()
+
+		let errorMessage = """
+			BannerBuilder requires ImageMagick to run.
+			For installation instructions, visit: https://www.imagemagick.org/script/download.php
+			"""
+
+		let outputData = outPipe.fileHandleForReading.readDataToEndOfFile()
+		guard let string = String(data: outputData, encoding: .utf8),
+			!string.trimmingCharacters(in: CharacterSet.newlines).isEmpty else {
+				print(errorMessage)
+				return false
+		}
+
+		task.waitUntilExit()
+
+		return true
+	}
+
 	public func run() throws {
+
+		guard isImageMagickInstalled() else { return }
 
 		let input = parser.add(
 			option: "--input",
