@@ -56,13 +56,15 @@ public final class BannerBuilder {
 			completion: .values(allColors)
 		)
 
+		let rotated = parser.add(option: "--rotated", shortName: "-r", kind: Bool.self)
+
 		do {
 			// The first argument is the path to the BannerBuilder executable, so we ignore that here
 			let args = Array(arguments.dropFirst())
 			let result = try parser.parse(args)
 
 			// Print the usage description if the user didn't provide any arguments
-			guard args.count > 0 else {
+			guard arguments.count > 1 && arguments[0].isNotEmpty else {
 				parser.printUsage(on: stdoutStream)
 				return
 			}
@@ -76,7 +78,7 @@ public final class BannerBuilder {
 				bannerText: bannerText,
 				inputPath: inputPath.path,
 				outputPath: outputPath.path,
-				rotated: true,
+				rotated: result.get(rotated) ?? true,
 				textColor: .white,
 				bannerColor: Color(rawValue: bannerColor)
 			)
@@ -98,5 +100,11 @@ public extension BannerBuilder {
 		case missingBannerColor
 		case missingInputPath
 		case missingOutputPath
+	}
+}
+
+extension String {
+	var isNotEmpty: Bool {
+		return !isEmpty
 	}
 }
